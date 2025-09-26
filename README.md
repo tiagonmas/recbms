@@ -3,5 +3,7 @@ Custom integration for *Home Assistant* to surface *[REC BMS](https://www.rec-bm
 
 # Usage
 
+```
 sensor:
   - platform: recbms
+```
