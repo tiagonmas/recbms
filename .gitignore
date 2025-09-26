@@ -3,3 +3,96 @@ custom_components/recbms/__pycache__/config_flow.cpython-313.pyc
 custom_components/recbms/__pycache__/const.cpython-313.pyc
 custom_components/recbms/__pycache__/sensor.cpython-313.pyc
 custom_components/recbms/__pycache__/websocket_client.cpython-313.pyc
+
+blueprints/
+storage/
+# Python cache and compiled files
+__pycache__/
+*.py[cod]
+*.so
+
+# VS Code settings
+.vscode/
+
+# Environment files
+.env
+*.env
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+
+# Logs and debugging
+*.log
+*.out
+
+# Unit test cache
+.cache/
+.coverage
+htmlcov/
+.tox/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+
+# Home Assistant specific
+home-assistant.log
+home-assistant_v2.db
+*.db-shm
+*.db-wal
+# Custom component build artifacts (if any)
+*.js
+*.map
+*.tsbuildinfo
+
+# Node modules (if using frontend)
+node_modules/
+
+# Temporary files
+*.tmp
+*.swp
+*.bak
+*.orig
+
+# macOS and Linux system files
+.DS_Store
+Thumbs.db
+
+automations.yaml
+configurations.yaml
+.HA_VERSION
+configuration.yaml
+home-assistant.log.1
+home-assistant.log.fault
+scenes.yaml
+scripts.yaml
+secrets.yaml
+.storage/assist_pipeline.pipelines
+.storage/auth
+.storage/auth_provider.homeassistant
+.storage/bluetooth.passive_update_processor
+.storage/bluetooth.remote_scanners
+.storage/core.analytics
+.storage/core.area_registry
+.storage/core.config
+.storage/core.config_entries
+.storage/core.device_registry
+.storage/core.entity_registry
+.storage/core.logger
+.storage/core.restore_state
+.storage/core.uuid
+.storage/esphome.dashboard
+.storage/frontend.user_data_748fc758e3a24f33b1e0edba5df4ae42
+.storage/hassio
+.storage/homeassistant.exposed_entities
+.storage/http
+.storage/http.auth
+.storage/lovelace
+.storage/lovelace_dashboards
+.storage/onboarding
+.storage/person
+.storage/repairs.issue_registry
+.storage/trace.saved_traces
