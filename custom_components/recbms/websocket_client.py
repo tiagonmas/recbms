@@ -1,15 +1,17 @@
+from aiohttp import ClientSession, WSMsgType, ClientConnectorError, ClientTimeout
+from websockets.exceptions import ConnectionClosedError
+
 import asyncio
 import json
 import logging
-
 import websockets
 
 _LOGGER = logging.getLogger(__name__)
 
-
 class WebSocketClient:
     def __init__(self, hass):
         self.hass = hass
+        self.data = {}
         self.url = "ws://192.168.8.2/ws"  # Replace with your device's IP and port
 
     async def connect(self):
@@ -17,16 +19,23 @@ class WebSocketClient:
             _LOGGER.info("Connecting to websocket.")
             async with websockets.connect(self.url) as websocket:
                 while True:
-                    _LOGGER.debug("received data")
-                    data = await websocket.recv()
-                    data_json = parse_bms_message(data)
-                    if "type" in data_json:
-                        if data_json.get("type") == "status":
-                            update_state(self.hass, data_json)
-                            # self.hass.bus.async_fire("recbms_event", {"data": data})
-
+                    try:
+                        data = await websocket.recv()
+                        #_LOGGER.debug("websocket received data"+str(data)[:50])
+                        data_json = parse_bms_message(data)
+                        if "type" in data_json:
+                            if data_json.get("type") == "status":
+                                self.data.update(data_json["bms_array"]["master"])
+                                update_state(self.hass, data_json["bms_array"]["master"])
+                                self.hass.bus.async_fire("recbms_event", data_json["bms_array"]["master"])                    
+                    except ConnectionClosedError as e:
+                        _LOGGER.warning("WebSocket connection closed: %s", e)
+                        await asyncio.sleep(5)  # Wait before reconnecting
+                    except Exception as e:
+                        _LOGGER.error("Unexpected error: %s", e)
+                        await asyncio.sleep(5)
         asyncio.create_task(listen())
-
+        self.hass.bus.async_listen_once("homeassistant_stop", lambda event: ws.close())
 
 def parse_bms_message(raw):
     try:
@@ -39,16 +48,17 @@ def update_state(hass, data):
     if not data:
         return
 
-    time_remaining = data["bms_array"]["master"]["time_remaining"]
+    #_LOGGER.debug("update_state"+str(data)[:50])
+    time_remaining = data["time_remaining"]
     if isinstance(time_remaining, str):
         time_remaining = time_remaining.replace("<br>", "")
-    mincell = data["bms_array"]["master"]["mincell"]
-    maxcell = data["bms_array"]["master"]["maxcell"]
-    ibat = data["bms_array"]["master"]["ibat"]
-    tmax = data["bms_array"]["master"]["tmax"]
-    vbat = data["bms_array"]["master"]["vbat"]
-    soc = data["bms_array"]["master"]["soc"]
-    soh = data["bms_array"]["master"]["soh"]
+    mincell = data["mincell"]
+    maxcell = data["maxcell"]
+    ibat = data["ibat"]
+    tmax = data["tmax"]
+    vbat = data["vbat"]
+    soc = data["soc"]
+    soh = data["soh"]
 
     hass.states.async_set(
         "sensor.recbms_time_remaining",
