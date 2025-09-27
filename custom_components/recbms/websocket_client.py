@@ -3,6 +3,7 @@ from websockets.exceptions import ConnectionClosedError
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from .const import DOMAIN
+from datetime import datetime
 
 import asyncio
 import json
@@ -25,12 +26,11 @@ class WebSocketClient:
                     while True:
                             data = await websocket.recv()
                             #_LOGGER.debug("websocket received data"+str(data)[:50])
-                            data_json = parse_bms_message(data)
-                            if "type" in data_json:
-                                if data_json.get("type") == "status":
-                                    self.data.update(data_json["bms_array"]["master"])
-                                    update_state(self.hass, data_json["bms_array"]["master"])
-                                    self.hass.bus.async_fire("recbms_event", data_json["bms_array"]["master"])                                        
+                            recbms_json = parse_bms_message(data)
+                            if recbms_json:
+                                    self.data.update(recbms_json)
+                                    update_state(self.hass, recbms_json)
+                                    self.hass.bus.async_fire("recbms_event", recbms_json)                                        
             except ConnectionClosedError as e:
                 _LOGGER.warning("RECBMS WebSocket connection closed: %s", e)
                 await asyncio.sleep(5)  # Wait before reconnecting
@@ -45,7 +45,15 @@ class WebSocketClient:
 
 def parse_bms_message(raw):
     try:
-        return json.loads(raw)
+        recbms_json=json.loads(raw)
+        if "type" in recbms_json and recbms_json.get("type") == "status":
+            recbms_json=recbms_json["bms_array"]["master"]
+            recbms_json["last_update"]=datetime.now()
+            # recbms_json["charging"]=
+            # recbms_json["Discharging"]=
+            return recbms_json
+        else:
+            return {}
     except json.JSONDecodeError:
         return None
 
@@ -109,3 +117,9 @@ def update_state(hass, data):
         soh,
         {"unit_of_measurement": "%", "friendly_name": "State of Health"},
     )
+    hass.states.async_set(
+        "sensor.recbms_last_update",
+        soh,
+        {"unit_of_measurement": "timestamp", "friendly_name": "Last update"},
+    )    
+
