@@ -51,7 +51,6 @@ class MultiSensor(SensorEntity):
         if self._state is not None:   
             self.native_value=new_value
             self._attr_native_value = new_value
-            #self.async_write_ha_state()
             self._attr_available = True
             #_LOGGER.debug("Updated "+str(self.name)+" to "+str(new_value) +" was "+ str(old_value))
             return new_value

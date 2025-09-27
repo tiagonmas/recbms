@@ -25,9 +25,9 @@ class WebSocketClient:
                 async with websockets.connect(self.wsurl) as websocket:
                     while True:
                             data = await websocket.recv()
-                            #_LOGGER.debug("websocket received data"+str(data)[:50])
                             recbms_json = parse_bms_message(data)
                             if recbms_json:
+                                    # _LOGGER.debug("status:"+str(recbms_json))
                                     self.data.update(recbms_json)
                                     update_state(self.hass, recbms_json)
                                     self.hass.bus.async_fire("recbms_event", recbms_json)                                        
@@ -38,23 +38,26 @@ class WebSocketClient:
                 _LOGGER.info("RECBMS WebSocket listener cancelled.")
                 raise
             except Exception as e:
-                _LOGGER.error("RECBMS Unexpected error: %s", e)
+                _LOGGER.error("RECBMS Unexpected websocket error: %s", e)
                 await asyncio.sleep(10)
         asyncio.create_task(listen())
-        self.hass.bus.async_listen_once("homeassistant_stop", lambda event: ws.close())
+        self.hass.bus.async_listen_once("homeassistant_stop", lambda event: self.hass.data[DOMAIN]["ws_client"].close())
 
 def parse_bms_message(raw):
     try:
         recbms_json=json.loads(raw)
+
         if "type" in recbms_json and recbms_json.get("type") == "status":
             recbms_json=recbms_json["bms_array"]["master"]
             recbms_json["last_update"]=datetime.now()
+            recbms_json["time_remaining"] = recbms_json["time_remaining"].replace("<br>", "")
             # recbms_json["charging"]=
             # recbms_json["Discharging"]=
             return recbms_json
         else:
             return {}
     except json.JSONDecodeError:
+        _LOGGER.error("RECBMS JSONDecodeError: %s", e)
         return None
 
 def update_state(hass, data):
@@ -62,8 +65,6 @@ def update_state(hass, data):
         return
 
     time_remaining = data["time_remaining"]
-    if isinstance(time_remaining, str):
-        time_remaining = time_remaining.replace("<br>", "")
     mincell = data["mincell"]
     maxcell = data["maxcell"]
     ibat = data["ibat"]
@@ -73,52 +74,52 @@ def update_state(hass, data):
     soh = data["soh"]
 
     hass.states.async_set(
-        "sensor.recbms_time_remaining",
+        "sensor.recbms_state_time_remaining",
         time_remaining,
         {"unit_of_measurement": "H", "friendly_name": "Time remaining"},
     )
     hass.states.async_set(
-        "sensor.recbms_mincell",
+        "sensor.recbms_state_mincell",
         mincell,
         {"unit_of_measurement": "V", "friendly_name": "Minimum cell voltage"},
     )
     hass.states.async_set(
-        "sensor.recbms_maxcell",
+        "sensor.recbms_state_maxcell",
         maxcell,
         {"unit_of_measurement": "V", "friendly_name": "Maximum cell voltage"},
     )
     hass.states.async_set(
-        "sensor.recbms_mincell",
+        "sensor.recbms_state_mincell",
         mincell,
         {"unit_of_measurement": "V", "friendly_name": "Minimum cell voltage"},
     )
     hass.states.async_set(
-        "sensor.recbms_ibat",
+        "sensor.recbms_state_ibat",
         ibat,
         {"unit_of_measurement": "A", "friendly_name": "Current"},
     )
     hass.states.async_set(
-        "sensor.recbms_tmax",
+        "sensor.recbms_state_tmax",
         tmax,
         {"unit_of_measurement": "°C", "friendly_name": "Max temperature"},
     )
     hass.states.async_set(
-        "sensor.recbms_vbat",
+        "sensor.recbms_state_vbat",
         vbat,
         {"unit_of_measurement": "V", "friendly_name": "Voltage"},
     )
     hass.states.async_set(
-        "sensor.recbms_soc",
+        "sensor.recbms_state_soc",
         soc,
         {"unit_of_measurement": "%", "friendly_name": "State of charge"},
     )
     hass.states.async_set(
-        "sensor.recbms_soh",
+        "sensor.recbms_state_soh",
         soh,
         {"unit_of_measurement": "%", "friendly_name": "State of Health"},
     )
     hass.states.async_set(
-        "sensor.recbms_last_update",
+        "sensor.recbms_state_last_update",
         soh,
         {"unit_of_measurement": "timestamp", "friendly_name": "Last update"},
     )    
