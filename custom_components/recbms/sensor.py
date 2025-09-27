@@ -28,20 +28,22 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
         _LOGGER.warning("WebSocket client not found in hass.data")
 
     entities = []
-    for key, (name, unit) in SENSOR_TYPES.items():
-        entities.append(MultiSensor(key, hass.data[DOMAIN]["ws_client"],name, unit))
+    for key, (name, unit,icon) in SENSOR_TYPES.items():
+        entities.append(MultiSensor(key, hass.data[DOMAIN]["ws_client"],name, unit,icon))
     async_add_entities(entities)
 
 class MultiSensor(SensorEntity):
-    def __init__(self,  key, websocketclient,name, unit):
+    def __init__(self,  key, websocketclient,name, unit,icon):
         self._websocketclient= websocketclient
         self._key = key
         self._unique_id="recmbs_"+key
+        self._attr_unique_id="recmbs_"+key
         self._attr_name = f"{DOMAIN} {name}"
         self._attr_native_unit_of_measurement = unit
+        self._attr_icon=icon
         self._attr_state_class = "measurement"
         self._state = None
-        _LOGGER.info("creating REC BMS entity key:"+key+" name:"+self._attr_name+" unit:"+unit+" nuique_id:"+self._unique_id)
+        _LOGGER.info("creating REC BMS entity key:"+key+" name:"+self._attr_name+" unit:"+unit+" unique_id:"+self._unique_id)
 
     @property
     def state(self):
@@ -52,8 +54,8 @@ class MultiSensor(SensorEntity):
             self.native_value=new_value
             self._attr_native_value = new_value
             self._attr_available = True
-            #_LOGGER.debug("Updated "+str(self.name)+" to "+str(new_value) +" was "+ str(old_value))
+            _LOGGER.debug("Updated "+str(self.name)+" to "+str(new_value) +" was "+ str(old_value))
             return new_value
         else:
-            _LOGGER.debug(f"{self.name} has no state yet.")
+            #_LOGGER.debug(f"{self.name} has no state yet.")
             return None

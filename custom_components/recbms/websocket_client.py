@@ -9,6 +9,7 @@ import asyncio
 import json
 import logging
 import websockets
+import re
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -51,6 +52,9 @@ def parse_bms_message(raw):
             recbms_json=recbms_json["bms_array"]["master"]
             recbms_json["last_update"]=datetime.now()
             recbms_json["time_remaining"] = recbms_json["time_remaining"].replace("<br>", "")
+            hours, minutes = extract_time(recbms_json["time_remaining"])
+            recbms_json["time_remaining_mins"]=minutes+hours*60
+            recbms_json["time_remaining_hours"]= hours + (minutes / 60)
             # recbms_json["charging"]=
             # recbms_json["Discharging"]=
             return recbms_json
@@ -59,6 +63,16 @@ def parse_bms_message(raw):
     except json.JSONDecodeError:
         _LOGGER.error("RECBMS JSONDecodeError: %s", e)
         return None
+
+def extract_time(text):
+    # Match patterns like "8 h" and "49 min"
+    match = re.search(r'(\d+)\s*h\s*(\d+)\s*min', text)
+    if match:
+        hours = int(match.group(1))
+        minutes = int(match.group(2))
+        return hours, minutes
+    else:
+        return None, None
 
 def update_state(hass, data):
     if not data:
@@ -120,7 +134,7 @@ def update_state(hass, data):
     )
     hass.states.async_set(
         "sensor.recbms_state_last_update",
-        soh,
+        datetime.now(),
         {"unit_of_measurement": "timestamp", "friendly_name": "Last update"},
     )    
 
