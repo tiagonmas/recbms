@@ -11,7 +11,7 @@ class RecbmsConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema({
-                vol.Required("wsurl",default="ws://192.168.8.3/ws"): str,
+                vol.Required("wsurl",default="ws://192.168.8.2/ws"): str,
                 vol.Required("name", default="RECBMS"): str,
             })
         )

@@ -1,5 +1,8 @@
 from aiohttp import ClientSession, WSMsgType, ClientConnectorError, ClientTimeout
 from websockets.exceptions import ConnectionClosedError
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
+from .const import DOMAIN
 
 import asyncio
 import json
@@ -12,12 +15,12 @@ class WebSocketClient:
     def __init__(self, hass):
         self.hass = hass
         self.data = {}
-        self.url = "ws://192.168.8.2/ws"  # Replace with your device's IP and port
 
-    async def connect(self):
+    async def connect(self,wsurl):
+        self.wsurl = wsurl
         async def listen():
-            _LOGGER.info("Connecting to websocket.")
-            async with websockets.connect(self.url) as websocket:
+            _LOGGER.debug("connecting to websocker"+self.wsurl )
+            async with websockets.connect(self.wsurl) as websocket:
                 while True:
                     try:
                         data = await websocket.recv()
@@ -27,13 +30,17 @@ class WebSocketClient:
                             if data_json.get("type") == "status":
                                 self.data.update(data_json["bms_array"]["master"])
                                 update_state(self.hass, data_json["bms_array"]["master"])
-                                self.hass.bus.async_fire("recbms_event", data_json["bms_array"]["master"])                    
+                                self.hass.bus.async_fire("recbms_event", data_json["bms_array"]["master"])                                        
                     except ConnectionClosedError as e:
                         _LOGGER.warning("WebSocket connection closed: %s", e)
                         await asyncio.sleep(5)  # Wait before reconnecting
+                    except asyncio.CancelledError:
+                        _LOGGER.info("WebSocket listener cancelled.")
+                        raise
                     except Exception as e:
                         _LOGGER.error("Unexpected error: %s", e)
-                        await asyncio.sleep(5)
+                        await asyncio.sleep(10)
+
         asyncio.create_task(listen())
         self.hass.bus.async_listen_once("homeassistant_stop", lambda event: ws.close())
 
@@ -43,12 +50,10 @@ def parse_bms_message(raw):
     except json.JSONDecodeError:
         return None
 
-
 def update_state(hass, data):
     if not data:
         return
 
-    #_LOGGER.debug("update_state"+str(data)[:50])
     time_remaining = data["time_remaining"]
     if isinstance(time_remaining, str):
         time_remaining = time_remaining.replace("<br>", "")
