@@ -54,7 +54,7 @@ class MultiSensor(SensorEntity):
             self.native_value=new_value
             self._attr_native_value = new_value
             self._attr_available = True
-            _LOGGER.debug("Updated "+str(self.name)+" to "+str(new_value) +" was "+ str(old_value))
+            #_LOGGER.debug("Updated "+str(self.name)+" to "+str(new_value) +" was "+ str(old_value))
             return new_value
         else:
             #_LOGGER.debug(f"{self.name} has no state yet.")

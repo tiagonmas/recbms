@@ -50,7 +50,7 @@ def parse_bms_message(raw):
 
         if "type" in recbms_json and recbms_json.get("type") == "status":
             recbms_json=recbms_json["bms_array"]["master"]
-            recbms_json["last_update"]=datetime.now()
+            recbms_json["last_update"]=datetime.now().replace(microsecond=0)
             recbms_json["time_remaining"] = recbms_json["time_remaining"].replace("<br>", "")
             hours, minutes = extract_time(recbms_json["time_remaining"])
             recbms_json["time_remaining_mins"]=minutes+hours*60
@@ -134,7 +134,7 @@ def update_state(hass, data):
     )
     hass.states.async_set(
         "sensor.recbms_state_last_update",
-        datetime.now(),
-        {"unit_of_measurement": "timestamp", "friendly_name": "Last update"},
+        datetime.now().replace(microsecond=0),
+        {"unit_of_measurement": "None", "friendly_name": "Last update"},
     )    
 
