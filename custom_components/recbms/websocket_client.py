@@ -20,27 +20,26 @@ class WebSocketClient:
         self.wsurl = wsurl
         async def listen():
             _LOGGER.debug("connecting to websocker"+self.wsurl )
-            async with websockets.connect(self.wsurl) as websocket:
-                while True:
-                    try:
-                        data = await websocket.recv()
-                        #_LOGGER.debug("websocket received data"+str(data)[:50])
-                        data_json = parse_bms_message(data)
-                        if "type" in data_json:
-                            if data_json.get("type") == "status":
-                                self.data.update(data_json["bms_array"]["master"])
-                                update_state(self.hass, data_json["bms_array"]["master"])
-                                self.hass.bus.async_fire("recbms_event", data_json["bms_array"]["master"])                                        
-                    except ConnectionClosedError as e:
-                        _LOGGER.warning("WebSocket connection closed: %s", e)
-                        await asyncio.sleep(5)  # Wait before reconnecting
-                    except asyncio.CancelledError:
-                        _LOGGER.info("WebSocket listener cancelled.")
-                        raise
-                    except Exception as e:
-                        _LOGGER.error("Unexpected error: %s", e)
-                        await asyncio.sleep(10)
-
+            try:            
+                async with websockets.connect(self.wsurl) as websocket:
+                    while True:
+                            data = await websocket.recv()
+                            #_LOGGER.debug("websocket received data"+str(data)[:50])
+                            data_json = parse_bms_message(data)
+                            if "type" in data_json:
+                                if data_json.get("type") == "status":
+                                    self.data.update(data_json["bms_array"]["master"])
+                                    update_state(self.hass, data_json["bms_array"]["master"])
+                                    self.hass.bus.async_fire("recbms_event", data_json["bms_array"]["master"])                                        
+            except ConnectionClosedError as e:
+                _LOGGER.warning("RECBMS WebSocket connection closed: %s", e)
+                await asyncio.sleep(5)  # Wait before reconnecting
+            except asyncio.CancelledError:
+                _LOGGER.info("RECBMS WebSocket listener cancelled.")
+                raise
+            except Exception as e:
+                _LOGGER.error("RECBMS Unexpected error: %s", e)
+                await asyncio.sleep(10)
         asyncio.create_task(listen())
         self.hass.bus.async_listen_once("homeassistant_stop", lambda event: ws.close())
 

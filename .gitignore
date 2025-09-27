@@ -99,3 +99,7 @@ secrets.yaml
 custom_components/recbms/__pycache__/__init__.cpython-313.pyc
 custom_components/recbms/__pycache__/sensor.cpython-313.pyc
 custom_components/recbms/__pycache__/websocket_client.cpython-313.pyc
+custom_components/recbms/__pycache__/__init__.cpython-313.pyc
+custom_components/recbms/__pycache__/config_flow.cpython-313.pyc
+custom_components/recbms/__pycache__/sensor.cpython-313.pyc
+custom_components/recbms/__pycache__/websocket_client.cpython-313.pyc

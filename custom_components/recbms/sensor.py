@@ -22,7 +22,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     data = hass.data[DOMAIN][entry_id]
     if DOMAIN in hass.data and "ws_client" not in hass.data[DOMAIN]:
         hass.data[DOMAIN]["ws_client"] = WebSocketClient(hass)
-        _LOGGER.debug("recbms websocket url:"+hass.data[DOMAIN][entry.entry_id]["wsurl"])
+        _LOGGER.debug(f"{DOMAIN} websocket url: {hass.data[DOMAIN][entry.entry_id]["wsurl"]}")
         await hass.data[DOMAIN]["ws_client"].connect(hass.data[DOMAIN][entry.entry_id]["wsurl"])
     else:
         _LOGGER.warning("WebSocket client not found in hass.data")
@@ -37,7 +37,7 @@ class MultiSensor(SensorEntity):
         self._websocketclient= websocketclient
         self._key = key
         self._unique_id="recmbs_"+key
-        self._attr_name = f"RECBMS2 {name}"
+        self._attr_name = f"{DOMAIN} {name}"
         self._attr_native_unit_of_measurement = unit
         self._attr_state_class = "measurement"
         self._state = None
