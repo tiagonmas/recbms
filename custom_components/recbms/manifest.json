@@ -7,6 +7,7 @@
   "documentation": "https://github.com/tiagonmas/recbms",
   "integration_type": "device",
   "iot_class": "local_push",
+  "issue_tracker": "https://github.com/tiagonmas/recbms/issues",
   "quality_scale": "bronze",
   "requirements": ["websockets"],
   "version": "0.0.1"
