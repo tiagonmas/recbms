@@ -31,7 +31,7 @@ This allows you home assistant to connect to REC BMS sensor and display:
 
 # Support
 
-You have issue with the integration, you want new sensors? Please open an Issue.
+You have issue with the integration, you want new sensors? Please open an [Issue](https://github.com/tiagonmas/recbms/issues).
 
 # Screenshot
 
