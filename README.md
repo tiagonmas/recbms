@@ -16,6 +16,10 @@ This allows you home assistant to connect to REC BMS sensor and display:
 - State of Charge (Percent)
 - State of Health (Percent)
 
+Example in Lovelave:
+
+<img src="recbms_layout.jpeg" width="300"/>
+
 # Install
 
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=tiagonmas&repository=recbms&category=integration)
