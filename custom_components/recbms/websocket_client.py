@@ -135,6 +135,6 @@ def update_state(hass, data):
     hass.states.async_set(
         "sensor.recbms_state_last_update",
         datetime.now().replace(microsecond=0),
-        {"unit_of_measurement": "None", "friendly_name": "Last update"},
+        {"unit_of_measurement": "", "friendly_name": "Last update"},
     )    
 

@@ -1492,3 +1492,6 @@ custom_components/hacs/websocket/repository.py
 .storage/hacs.repositories
 custom_components/recbms/__pycache__/websocket_client.cpython-313.pyc
 custom_components/recbms/__pycache__/websocket_client.cpython-313.pyc
+.storage/lovelace_resources
+www/community/lovelace-entity-progress-card/entity-progress-card.js.gz
+www/community/mini-graph-card/mini-graph-card-bundle.js.gz

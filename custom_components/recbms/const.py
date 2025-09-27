@@ -6,7 +6,7 @@ CONF_WSURL="ws://192.168.8.3/ws"
 CONF_NAME="RECBMS"
 
 SENSOR_TYPES = {
-    "time_remaining": ["Time remaining", "None","mdi:clock-time-eight"],
+    "time_remaining": ["Time remaining", "","mdi:clock-time-eight"],
     "time_remaining_mins": ["Minutes remaining", "min","mdi:clock-time-eight"],
     "time_remaining_hours": ["Hours remaining", "H","mdi:clock-time-eight"],
     "mincell": ["Minimum cell voltage", "V","mdi:battery"],
@@ -17,7 +17,7 @@ SENSOR_TYPES = {
     "vbat": ["Pack Voltage", "V","mdi:battery"],
     "soc": ["State of Charge", "%","mdi:percent"],
     "soh": ["State of Health", "%","mdi:medication"],
-    "last_update": ["Last Update", "H","mdi:clock-time-eight"],
+    "last_update": ["Last Update", "","mdi:clock-time-eight"],
     "charging": ["Charging", "A","mdi:battery"],
     "discharging": ["Discharging", "A","mdi:battery"]
 }
