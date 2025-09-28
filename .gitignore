@@ -1495,3 +1495,5 @@ custom_components/recbms/__pycache__/websocket_client.cpython-313.pyc
 .storage/lovelace_resources
 www/community/lovelace-entity-progress-card/entity-progress-card.js.gz
 www/community/mini-graph-card/mini-graph-card-bundle.js.gz
+www/community/battery-state-card/battery-state-card.js.gz
+www/community/ha-battery/card.js.gz

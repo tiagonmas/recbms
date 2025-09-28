@@ -28,8 +28,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
         _LOGGER.warning("WebSocket client not found in hass.data")
 
     entities = []
-    for key, (name, unit,icon) in SENSOR_TYPES.items():
-        entities.append(MultiSensor(key, hass.data[DOMAIN]["ws_client"],name, unit,icon))
+    for key, (sensortype,name, unit,icon) in SENSOR_TYPES.items():
+        if sensortype == "MultiSensor":
+            entities.append(MultiSensor(key, hass.data[DOMAIN]["ws_client"],name, unit,icon))
+        else:
+            _LOGGER.error("Unkown entity type defined in const.py")
     async_add_entities(entities)
 
 class MultiSensor(SensorEntity):

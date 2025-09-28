@@ -47,14 +47,18 @@ class WebSocketClient:
 def parse_bms_message(raw):
     try:
         recbms_json=json.loads(raw)
-
         if "type" in recbms_json and recbms_json.get("type") == "status":
+            #_LOGGER.debug("status: "+str(recbms_json))
             recbms_json=recbms_json["bms_array"]["master"]
             recbms_json["last_update"]=datetime.now().replace(microsecond=0)
             recbms_json["time_remaining"] = recbms_json["time_remaining"].replace("<br>", "")
             hours, minutes = extract_time(recbms_json["time_remaining"])
-            recbms_json["time_remaining_mins"]=minutes+hours*60
-            recbms_json["time_remaining_hours"]= hours + (minutes / 60)
+            if hours is None or minutes is not None:
+                recbms_json["time_remaining_mins"]=minutes+hours*60
+            recbms_json["time_remaining_hours"]= round(hours + (minutes / 60),1)
+            recbms_json["soh"]=round(recbms_json["soh"],4)
+            recbms_json["soc"]=round(recbms_json["soc"],4)
+            recbms_json["soc100"]=round(recbms_json["soc"]*100,2)
             # recbms_json["charging"]=
             # recbms_json["Discharging"]=
             return recbms_json
@@ -62,6 +66,8 @@ def parse_bms_message(raw):
             return {}
     except json.JSONDecodeError:
         _LOGGER.error("RECBMS JSONDecodeError: %s", e)
+    except Exception as e:
+        _LOGGER.error("RECBMS parse_bms_message error: %s", e)        
         return None
 
 def extract_time(text):
