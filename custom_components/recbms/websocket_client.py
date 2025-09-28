@@ -21,7 +21,7 @@ class WebSocketClient:
     async def connect(self,wsurl):
         self.wsurl = wsurl
         async def listen():
-            _LOGGER.debug("connecting to websocker"+self.wsurl )
+            _LOGGER.debug("connecting to websocket"+self.wsurl )
             try:            
                 async with websockets.connect(self.wsurl) as websocket:
                     while True:
@@ -48,7 +48,6 @@ def parse_bms_message(raw):
     try:
         recbms_json=json.loads(raw)
         if "type" in recbms_json and recbms_json.get("type") == "status":
-            #_LOGGER.debug("status: "+str(recbms_json))
             recbms_json=recbms_json["bms_array"]["master"]
             recbms_json["last_update"]=datetime.now().replace(microsecond=0)
             recbms_json["time_remaining"] = recbms_json["time_remaining"].replace("<br>", "")
@@ -59,8 +58,14 @@ def parse_bms_message(raw):
             recbms_json["soh"]=round(recbms_json["soh"],4)
             recbms_json["soc"]=round(recbms_json["soc"],4)
             recbms_json["soc100"]=round(recbms_json["soc"]*100,2)
-            # recbms_json["charging"]=
-            # recbms_json["Discharging"]=
+            if recbms_json["ibat"]>0:
+                #_LOGGER.debug("RECBMS charging:"+str( recbms_json["ibat"]))
+                recbms_json["charging"]=True
+                recbms_json["discharging"]=False
+            else:
+                #_LOGGER.debug("RECBMS discharging"+str( recbms_json["ibat"]))
+                recbms_json["charging"]=False
+                recbms_json["discharging"]=True
             return recbms_json
         else:
             return {}

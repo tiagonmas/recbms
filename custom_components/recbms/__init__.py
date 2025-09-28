@@ -1,6 +1,5 @@
 """The REC BMS integration."""
 from __future__ import annotations
-
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
@@ -9,7 +8,7 @@ from .websocket_client import WebSocketClient
 
 import logging
 
-PLATFORMS: Final = ["sensor"]
+PLATFORMS: Final = ["sensor","binary_sensor"]
 _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):

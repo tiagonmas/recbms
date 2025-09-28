@@ -12,6 +12,7 @@ from homeassistant.helpers.device_registry import DeviceInfo
 from .const import DOMAIN, DEVICE_ID,SENSOR_TYPES
 from .websocket_client import WebSocketClient
 from homeassistant.config_entries import ConfigEntry
+from .binary_sensor import MyBinarySensor
 
 import logging
 
@@ -31,8 +32,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     for key, (sensortype,name, unit,icon) in SENSOR_TYPES.items():
         if sensortype == "MultiSensor":
             entities.append(MultiSensor(key, hass.data[DOMAIN]["ws_client"],name, unit,icon))
-        else:
-            _LOGGER.error("Unkown entity type defined in const.py")
     async_add_entities(entities)
 
 class MultiSensor(SensorEntity):
@@ -46,7 +45,7 @@ class MultiSensor(SensorEntity):
         self._attr_icon=icon
         self._attr_state_class = "measurement"
         self._state = None
-        _LOGGER.info("creating REC BMS entity key:"+key+" name:"+self._attr_name+" unit:"+unit+" unique_id:"+self._unique_id)
+        _LOGGER.info("creating REC BMS MultiSensor key:"+key+" name:"+self._attr_name+" unit:"+unit+" unique_id:"+self._unique_id)
 
     @property
     def state(self):

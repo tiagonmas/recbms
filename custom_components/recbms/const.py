@@ -19,6 +19,6 @@ SENSOR_TYPES = {
     "soc100": ["MultiSensor","State of Charge100", "%","mdi:percent"],
     "soh": ["MultiSensor","State of Health", "%","mdi:medication"],
     "last_update": ["MultiSensor","Last Update", "","mdi:clock-time-eight"],
-    "charging": ["MultiSensor","Charging", "A","mdi:battery"],
-    "discharging": ["MultiSensor","Discharging", "A","mdi:battery"]
+    "charging": ["MyBinarySensor","Charging", "A","mdi:battery"],
+    "discharging": ["MyBinarySensor","Discharging", "A","mdi:battery"]
 }
