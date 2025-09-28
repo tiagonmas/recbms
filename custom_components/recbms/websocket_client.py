@@ -53,9 +53,9 @@ def parse_bms_message(raw):
             recbms_json["last_update"]=datetime.now().replace(microsecond=0)
             recbms_json["time_remaining"] = recbms_json["time_remaining"].replace("<br>", "")
             hours, minutes = extract_time(recbms_json["time_remaining"])
-            if hours is None or minutes is not None:
+            if hours is not None and minutes is not None:
                 recbms_json["time_remaining_mins"]=minutes+hours*60
-            recbms_json["time_remaining_hours"]= round(hours + (minutes / 60),1)
+                recbms_json["time_remaining_hours"]= round(hours + (minutes / 60),1)
             recbms_json["soh"]=round(recbms_json["soh"],4)
             recbms_json["soc"]=round(recbms_json["soc"],4)
             recbms_json["soc100"]=round(recbms_json["soc"]*100,2)
@@ -67,17 +67,23 @@ def parse_bms_message(raw):
     except json.JSONDecodeError:
         _LOGGER.error("RECBMS JSONDecodeError: %s", e)
     except Exception as e:
-        _LOGGER.error("RECBMS parse_bms_message error: %s", e)        
+        _LOGGER.error("RECBMS parse_bms_message error: %s", e)
+        _LOGGER.error("RECBMS parse_bms_message error2:"+str(recbms_json))
         return None
 
 def extract_time(text):
     # Match patterns like "8 h" and "49 min"
-    match = re.search(r'(\d+)\s*h\s*(\d+)\s*min', text)
-    if match:
-        hours = int(match.group(1))
-        minutes = int(match.group(2))
-        return hours, minutes
-    else:
+    try:
+        match = re.search(r'(\d+)\s*h\s*(\d+)\s*min', text)
+        if match:
+            hours = int(match.group(1))
+            minutes = int(match.group(2))
+            return hours, minutes
+        else:
+            return None, None
+    except Exception as e:
+        _LOGGER.error("RECBMS extract_time: %s", e)
+        _LOGGER.error("RECBMS extract_time2: "+text)
         return None, None
 
 def update_state(hass, data):
