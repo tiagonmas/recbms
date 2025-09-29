@@ -21,17 +21,16 @@ class WebSocketClient:
     async def connect(self,wsurl):
         self.wsurl = wsurl
         async def listen():
-            _LOGGER.debug("connecting to websocket"+self.wsurl )
+            _LOGGER.debug("connecting to websocket "+self.wsurl )
             try:            
                 async with websockets.connect(self.wsurl) as websocket:
                     while True:
                             data = await websocket.recv()
                             recbms_json = parse_bms_message(data)
                             if recbms_json:
-                                    # _LOGGER.debug("status:"+str(recbms_json))
-                                    self.data.update(recbms_json)
                                     update_state(self.hass, recbms_json)
-                                    self.hass.bus.async_fire("recbms_event", recbms_json)                                        
+                                    #self.hass.bus.async_fire("recbms_event", recbms_json)
+                                    update_entities(self.hass.data[DOMAIN]["entities"],recbms_json)
             except ConnectionClosedError as e:
                 _LOGGER.warning("RECBMS WebSocket connection closed: %s", e)
                 await asyncio.sleep(5)  # Wait before reconnecting
@@ -43,6 +42,12 @@ class WebSocketClient:
                 await asyncio.sleep(10)
         asyncio.create_task(listen())
         self.hass.bus.async_listen_once("homeassistant_stop", lambda event: self.hass.data[DOMAIN]["ws_client"].close())
+
+def update_entities(entities,recbms_json):
+    for entity in entities:
+        #_LOGGER.info(f"will update {entity._key}")
+        entity.update_value(recbms_json.get(entity._key))
+        
 
 def parse_bms_message(raw):
     try:
@@ -73,7 +78,6 @@ def parse_bms_message(raw):
         _LOGGER.error("RECBMS JSONDecodeError: %s", e)
     except Exception as e:
         _LOGGER.error("RECBMS parse_bms_message error: %s", e)
-        _LOGGER.error("RECBMS parse_bms_message error2:"+str(recbms_json))
         return None
 
 def extract_time(text):
@@ -88,7 +92,6 @@ def extract_time(text):
             return None, None
     except Exception as e:
         _LOGGER.error("RECBMS extract_time: %s", e)
-        _LOGGER.error("RECBMS extract_time2: "+text)
         return None, None
 
 def update_state(hass, data):
