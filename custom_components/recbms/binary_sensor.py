@@ -36,7 +36,6 @@ class MyBinarySensor(BinarySensorEntity):
 
     def update_value(self, new_state: bool):
         if self._is_on != new_state:
-            _LOGGER.debug("Binary Sensor Updated "+str(self._attr_unique_id)+" to "+str(new_state) +" was "+ str(self._is_on))
+            #_LOGGER.debug("Binary Sensor Updated "+str(self._attr_unique_id)+" to "+str(new_state) +" was "+ str(self._is_on))
             self._is_on = new_state
-            _LOGGER.debug("Binary Sensor Updated:"+ str(self._is_on))
             self.async_write_ha_state()

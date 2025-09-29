@@ -28,7 +28,6 @@ class WebSocketClient:
                             data = await websocket.recv()
                             recbms_json = parse_bms_message(data)
                             if recbms_json:
-                                    update_state(self.hass, recbms_json)
                                     #self.hass.bus.async_fire("recbms_event", recbms_json)
                                     update_entities(self.hass.data[DOMAIN]["entities"],recbms_json)
             except ConnectionClosedError as e:
@@ -93,68 +92,3 @@ def extract_time(text):
     except Exception as e:
         _LOGGER.error("RECBMS extract_time: %s", e)
         return None, None
-
-def update_state(hass, data):
-    if not data:
-        return
-
-    time_remaining = data["time_remaining"]
-    mincell = data["mincell"]
-    maxcell = data["maxcell"]
-    ibat = data["ibat"]
-    tmax = data["tmax"]
-    vbat = data["vbat"]
-    soc = data["soc"]
-    soh = data["soh"]
-
-    hass.states.async_set(
-        "sensor.recbms_state_time_remaining",
-        time_remaining,
-        {"unit_of_measurement": "H", "friendly_name": "Time remaining"},
-    )
-    hass.states.async_set(
-        "sensor.recbms_state_mincell",
-        mincell,
-        {"unit_of_measurement": "V", "friendly_name": "Minimum cell voltage"},
-    )
-    hass.states.async_set(
-        "sensor.recbms_state_maxcell",
-        maxcell,
-        {"unit_of_measurement": "V", "friendly_name": "Maximum cell voltage"},
-    )
-    hass.states.async_set(
-        "sensor.recbms_state_mincell",
-        mincell,
-        {"unit_of_measurement": "V", "friendly_name": "Minimum cell voltage"},
-    )
-    hass.states.async_set(
-        "sensor.recbms_state_ibat",
-        ibat,
-        {"unit_of_measurement": "A", "friendly_name": "Current"},
-    )
-    hass.states.async_set(
-        "sensor.recbms_state_tmax",
-        tmax,
-        {"unit_of_measurement": "°C", "friendly_name": "Max temperature"},
-    )
-    hass.states.async_set(
-        "sensor.recbms_state_vbat",
-        vbat,
-        {"unit_of_measurement": "V", "friendly_name": "Voltage"},
-    )
-    hass.states.async_set(
-        "sensor.recbms_state_soc",
-        soc,
-        {"unit_of_measurement": "%", "friendly_name": "State of charge"},
-    )
-    hass.states.async_set(
-        "sensor.recbms_state_soh",
-        soh,
-        {"unit_of_measurement": "%", "friendly_name": "State of Health"},
-    )
-    hass.states.async_set(
-        "sensor.recbms_state_last_update",
-        datetime.now().replace(microsecond=0),
-        {"unit_of_measurement": "", "friendly_name": "Last update"},
-    )    
-
