@@ -16,31 +16,53 @@ _LOGGER = logging.getLogger(__name__)
 class WebSocketClient:
     def __init__(self, hass):
         self.hass = hass
-        self.data = {}
+        self.token = "YOUR_LONG_LIVED_ACCESS_TOKEN"
+        self.ping_interval = 30
+        self.ping_timeout = 10
+        self.max_reconnect_delay = 300  # 5 minutes
 
-    async def connect(self,wsurl):
-        self.wsurl = wsurl
-        async def listen():
-            _LOGGER.debug("connecting to websocket "+self.wsurl )
-            try:            
-                async with websockets.connect(self.wsurl) as websocket:
-                    while True:
-                            data = await websocket.recv()
-                            recbms_json = parse_bms_message(data)
-                            if recbms_json:
-                                    #self.hass.bus.async_fire("recbms_event", recbms_json)
-                                    update_entities(self.hass.data[DOMAIN]["entities"],recbms_json)
-            except ConnectionClosedError as e:
-                _LOGGER.warning("RECBMS WebSocket connection closed: %s", e)
-                await asyncio.sleep(5)  # Wait before reconnecting
-            except asyncio.CancelledError:
-                _LOGGER.info("RECBMS WebSocket listener cancelled.")
-                raise
+
+    async def run(self,wsurl):
+        self.uri=wsurl
+        reconnect_delay = 5
+        while True:
+            try:
+                async with websockets.connect(
+                    self.uri,
+                    ping_interval=self.ping_interval,
+                    ping_timeout=self.ping_timeout
+                ) as ws:
+                    _LOGGER.info("RECBMS Connected to WebSocket API")
+                    reconnect_delay = 5  # reset delay on success
+                    #await self.authenticate(ws)
+                    await self.listen(ws)
             except Exception as e:
-                _LOGGER.error("RECBMS Unexpected websocket error: %s", e)
-                await asyncio.sleep(10)
-        asyncio.create_task(listen())
-        self.hass.bus.async_listen_once("homeassistant_stop", lambda event: self.hass.data[DOMAIN]["ws_client"].close())
+                _LOGGER.warning(f"RECBMS WebSocket error: {e}")
+                _LOGGER.info(f"RECBMS Reconnecting in {reconnect_delay} seconds...")
+                await asyncio.sleep(reconnect_delay)
+                reconnect_delay = min(reconnect_delay * 2, self.max_reconnect_delay)
+
+    async def authenticate(self, ws):
+        await ws.send(json.dumps({"type": "auth", "access_token": self.token}))
+        response = await ws.recv()
+        data = json.loads(response)
+        if data.get("type") != "auth_ok":
+            raise Exception("RECBMS Authentication failed")
+        _LOGGER.info("RECBMS Authenticated successfully")
+
+    async def listen(self, ws):
+        try:
+            while True:
+                data = await ws.recv()
+                recbms_json = parse_bms_message(data)
+                if recbms_json:
+                        #self.hass.bus.async_fire("recbms_event", recbms_json)
+                        update_entities(self.hass.data[DOMAIN]["entities"],recbms_json)                
+                #_LOGGER.debug(f"RECBMS Received: {data}")
+        except websockets.exceptions.ConnectionClosedError as e:
+            _LOGGER.warning(f"RECBMS Connection closed: {e}")
+        finally:
+            await ws.close(code=1000, reason="Normal closure")
 
 def update_entities(entities,recbms_json):
     for entity in entities:
@@ -59,7 +81,7 @@ def parse_bms_message(raw):
             if hours is not None and minutes is not None:
                 recbms_json["time_remaining_mins"]=minutes+hours*60
                 recbms_json["time_remaining_hours"]= round(hours + (minutes / 60),1)
-            recbms_json["soh"]=round(recbms_json["soh"],4)
+            recbms_json["soh"]=round(recbms_json["soh"]*100,4)
             recbms_json["soc"]=round(recbms_json["soc"],4)
             recbms_json["soc100"]=round(recbms_json["soc"]*100,2)
             if recbms_json["ibat"]>0:

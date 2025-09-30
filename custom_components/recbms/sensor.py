@@ -20,10 +20,12 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities):
     entry_id = entry.entry_id
     data = hass.data[DOMAIN][entry_id]
+    
     if DOMAIN in hass.data and "ws_client" not in hass.data[DOMAIN]:
-        hass.data[DOMAIN]["ws_client"] = WebSocketClient(hass)
+        ws_client=WebSocketClient(hass)
+        hass.data[DOMAIN]["ws_client"] = ws_client
         _LOGGER.debug(f"{DOMAIN} websocket url: {hass.data[DOMAIN][entry.entry_id]["wsurl"]}")
-        await hass.data[DOMAIN]["ws_client"].connect(hass.data[DOMAIN][entry.entry_id]["wsurl"])
+        hass.loop.create_task(ws_client.run(hass.data[DOMAIN][entry.entry_id]["wsurl"]))
     else:
         _LOGGER.warning("WebSocket client not found in hass.data")
 
