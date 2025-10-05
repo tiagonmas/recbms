@@ -3,7 +3,7 @@
 
 This is a Non official [custom integration](https://developers.home-assistant.io/docs/creating_component_index/) for *[Home Assistant](https://www.home-assistant.io/)* via [HACS](https://hacs.xyz/) to surface *[REC BMS](https://www.rec-bms.com/)* (Battery Management System) 
 
-
+ 
 # Supported Entities
 
 This allows you home assistant to connect to REC BMS sensor and display:
