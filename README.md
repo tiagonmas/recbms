@@ -38,6 +38,8 @@ You need to suply the URL for the websocket that REC wifi exposes.
 You can use any tool (ex: [postman](https://www.postman.com/)) to directly connect to the websocket. 
 For example "ws://192.168.8.2:80/ws"
 it should return two types of messages
+## REC BMS Websocket messages 
+Example of messages that are sent by REC BMS websocket and parsed by the home assistant integration are below
 ### Status
 ```
 {"type":"status","bms_array":{"master":{"time_remaining":"Full in:<br> 31h 00 min","st_naprav":1,"time":"","date":"28.09.2025","mincell":3.304808,"maxcell":3.319811,"ibat":7.456289,"tmax":22.5,"vbat":13.2439,"soc":0.285054,"soh":0.9963,"erro":{"present":0,"addr":0,"st":0,"con_st":0},"error":""},"slave":{"0":{"address":2,"st_temp":1,"temp_bms":28.66577,"st_celic":4,"temp":{"0":22.5},"res":{"0":0.00195,"1":0.003093,"2":0.002179,"3":0.001809},"nap":{"0":3.304808,"1":3.319811,"2":3.310808,"3":3.308474},"bal":{"0":true,"1":false,"2":false,"3":false}}}}}
