@@ -3,6 +3,7 @@
     "name": "REC BMS integration",
     "content_in_root": false,
     "homeassistant": "2025.9.4",
+    "category": "integration",
     "render_readme": true
   }
   
