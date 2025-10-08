@@ -18,7 +18,7 @@ This allows you home assistant to connect to REC BMS sensor and display:
 
 Example in Lovelave when using the sensors out of the box:
 
-<img src="recbms_layout.jpeg" width="300"/>
+<img src="https://github.com/tiagonmas/recbms/raw/main/recbms_layout.jpeg" width="300"/>
 
 # Install
 
